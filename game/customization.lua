@@ -58,6 +58,7 @@ local function listContainsAny(items, containedItems)
 end
 
 local function allowedForPlayer(item, allowedAces)
+    if type(item) ~= "table" then return false end
     return (item.jobs and listContains(item.jobs, client.job.name)) or (item.gangs and listContains(item.gangs, client.gang.name)) or (item.aces and listContainsAny(item.aces, allowedAces) or (item.citizenids and listContains(item.citizenids, client.citizenid)))
 end
 
@@ -101,8 +102,10 @@ local function filterBlacklistSettings(items, drawableId)
 
     for i = 1, #items do
         local item = items[i]
-        if not allowedForPlayer(item, allowedAces) and item.drawables then
-            for j = 0, #item.drawables do
+        if type(item) == "number" then
+            blacklistSettings.drawables[#blacklistSettings.drawables + 1] = item
+        elseif not allowedForPlayer(item, allowedAces) and item.drawables then
+            for j = 1, #item.drawables do
                 addToBlacklist(item, item.drawables[j], drawableId, blacklistSettings)
             end
         end
@@ -338,6 +341,12 @@ local function getAppearanceSettings()
 
     for i = 1, size do
         local overlay = constants.HEAD_OVERLAYS[i]
+        
+        -- Filter male only overlays
+        if (overlay == "beard" or overlay == "chestHair") and client.getPedDecorationType() == "female" then
+            goto continue
+        end
+
         local settings = {
             style = {
                 min = 0,
@@ -357,6 +366,7 @@ local function getAppearanceSettings()
         end
 
         headOverlays[overlay] = settings
+        ::continue::
     end
 
     local eyeColor = {
@@ -385,41 +395,60 @@ local isCameraInterpolating
 local currentCamera
 local cameraHandle
 local function setCamera(key)
-    if not isCameraInterpolating then
-        if key ~= "current" then
-            currentCamera = key
-        end
+    if isCameraInterpolating then return end -- Evitar cliques múltiplos
 
-        local coords, point = table.unpack(constants.CAMERAS[currentCamera])
-        local reverseFactor = reverseCamera and -1 or 1
+    if key ~= "current" then
+        currentCamera = key
+    end
 
-        if cameraHandle then
-            local camCoords = GetOffsetFromEntityInWorldCoords(cache.ped, coords.x * reverseFactor, coords.y * reverseFactor, coords.z * reverseFactor)
-            local camPoint = GetOffsetFromEntityInWorldCoords(cache.ped, point.x, point.y, point.z)
-            local tmpCamera = CreateCameraWithParams("DEFAULT_SCRIPTED_CAMERA", camCoords.x, camCoords.y, camCoords.z, 0.0, 0.0, 0.0, 49.0, false, 0)
+    local cameraConfig = constants.CAMERAS[currentCamera]
+    if not cameraConfig then return end -- Garantir que a câmera existe
 
-            PointCamAtCoord(tmpCamera, camPoint.x, camPoint.y, camPoint.z)
-            SetCamActiveWithInterp(tmpCamera, cameraHandle, 1000, 1, 1)
+    local coords, point = table.unpack(cameraConfig)
+    local reverseFactor = reverseCamera and -1 or 1
 
-            isCameraInterpolating = true
+    -- Obter o heading atual do ped
+    local pedHeading = GetEntityHeading(cache.ped)
 
-            CreateThread(function()
-                repeat Wait(500)
-                until not IsCamInterpolating(cameraHandle) and IsCamActive(tmpCamera)
-                DestroyCam(cameraHandle, false)
-                cameraHandle = tmpCamera
-                isCameraInterpolating = false
-            end)
-        else
-            local camCoords = GetOffsetFromEntityInWorldCoords(cache.ped, coords.x, coords.y, coords.z)
-            local camPoint = GetOffsetFromEntityInWorldCoords(cache.ped, point.x, point.y, point.z)
-            cameraHandle = CreateCameraWithParams("DEFAULT_SCRIPTED_CAMERA", camCoords.x, camCoords.y, camCoords.z, 0.0, 0.0, 0.0, 49.0, false, 0)
+    -- Calcular posição da câmera com o reverseFactor aplicado
+    local camCoords = GetOffsetFromEntityInWorldCoords(
+        cache.ped, 
+        coords.x * reverseFactor, 
+        coords.y * reverseFactor, 
+        coords.z
+    )
 
-            PointCamAtCoord(cameraHandle, camPoint.x, camPoint.y, camPoint.z)
-            SetCamActive(cameraHandle, true)
-        end
+    -- Calcular ponto focal SEM o reverseFactor para manter o foco na face
+    local camPoint = GetOffsetFromEntityInWorldCoords(
+        cache.ped, 
+        point.x, 
+        point.y, 
+        point.z
+    )
+
+    if cameraHandle then
+        local tmpCamera = CreateCameraWithParams("DEFAULT_SCRIPTED_CAMERA", camCoords.x, camCoords.y, camCoords.z, 0.0, 0.0, pedHeading, 49.0, false, 0)
+        PointCamAtCoord(tmpCamera, camPoint.x, camPoint.y, camPoint.z)
+        SetCamActiveWithInterp(tmpCamera, cameraHandle, 1000, 1, 1)
+
+        isCameraInterpolating = true
+
+        CreateThread(function()
+            repeat Wait(500)
+            until not IsCamInterpolating(cameraHandle) and IsCamActive(tmpCamera)
+            DestroyCam(cameraHandle, false)
+            cameraHandle = tmpCamera
+            isCameraInterpolating = false
+        end)
+    else
+        cameraHandle = CreateCameraWithParams("DEFAULT_SCRIPTED_CAMERA", camCoords.x, camCoords.y, camCoords.z, 0.0, 0.0, pedHeading, 49.0, false, 0)
+        PointCamAtCoord(cameraHandle, camPoint.x, camPoint.y, camPoint.z)
+        SetCamActive(cameraHandle, true)
     end
 end
+
+
+
 client.setCamera = setCamera
 
 function client.rotateCamera(direction)
@@ -454,20 +483,37 @@ function client.rotateCamera(direction)
     end
 end
 
-local playerCoords
+local isCustomizationActive = false
+
+local function playCustomizationPose()
+    local gender = client.getPedDecorationType()
+    local animDict = (gender == "Female") and "mp_character_creation@customise@female_a" or "mp_character_creation@customise@male_a"
+    RequestAnimDict(animDict)
+    local timeout = 0
+    while not HasAnimDictLoaded(animDict) and timeout < 100 do
+        Wait(50)
+        timeout = timeout + 1
+    end
+    if HasAnimDictLoaded(animDict) then
+        TaskPlayAnim(cache.ped, animDict, "loop", 8.0, -8.0, -1, 49, 0, false, false, false)
+    else
+        TaskStandStill(cache.ped, -1)
+    end
+    FreezeEntityPosition(cache.ped, true)
+end
+
 local function pedTurn(ped, angle)
     reverseCamera = not reverseCamera
-    local sequenceTaskId = OpenSequenceTask()
-    if sequenceTaskId then
-        TaskGoStraightToCoord(0, playerCoords.x, playerCoords.y, playerCoords.z, 8.0, -1, GetEntityHeading(ped) - angle, 0.1)
-        TaskStandStill(0, -1)
-        CloseSequenceTask(sequenceTaskId)
-        ClearPedTasks(ped)
-        TaskPerformSequence(ped, sequenceTaskId)
-        ClearSequenceTask(sequenceTaskId)
+    -- Apenas vira o heading sem cancelar tasks/animacao
+    SetEntityHeading(ped, GetEntityHeading(ped) - angle)
+    -- Garante que continue congelado e com a pose
+    FreezeEntityPosition(ped, true)
+    if isCustomizationActive then
+        playCustomizationPose()
     end
 end
 client.pedTurn = pedTurn
+
 
 local function wearClothes(data, typeClothes)
     local dataClothes = constants.DATA_CLOTHES[typeClothes]
@@ -533,10 +579,9 @@ client.removeClothes = removeClothes
 local playerHeading
 function client.getHeading() return playerHeading end
 
-local callback
-function client.startPlayerCustomization(cb, conf)
-    repeat Wait(0) until IsScreenFadedIn() and not IsPlayerTeleportActive() and not IsPlayerSwitchInProgress()
 
+
+function client.startPlayerCustomization(cb, conf)
     playerAppearance = client.getPedAppearance(cache.ped)
     playerCoords = GetEntityCoords(cache.ped, true)
     playerHeading = GetEntityHeading(cache.ped)
@@ -547,14 +592,21 @@ function client.startPlayerCustomization(cb, conf)
     config = conf
     reverseCamera = false
     isCameraInterpolating = false
+    isCustomizationActive = true
 
     setCamera("default")
     SetNuiFocus(true, true)
     SetNuiFocusKeepInput(false)
     RenderScriptCams(true, false, 0, true, true)
     SetEntityInvincible(cache.ped, Config.InvincibleDuringCustomization)
-    TaskStandStill(cache.ped, -1)
 
+    ClearPedTasksImmediately(cache.ped)
+
+    -- Toca animacao de bracos abertos e congela o ped
+    playCustomizationPose()
+
+    -- Esconde o HUD/minimap
+    ExecuteCommand("hudoff")
     if Config.HideRadar then DisplayRadar(false) end
 
     SendNuiMessage(json.encode({
@@ -570,8 +622,11 @@ function client.exitPlayerCustomization(appearance)
     DestroyCam(cameraHandle, false)
     SetNuiFocus(false, false)
 
+    -- Restaura o HUD
+    ExecuteCommand("hudon")
     if Config.HideRadar then DisplayRadar(true) end
 
+    FreezeEntityPosition(cache.ped, false)
     ClearPedTasksImmediately(cache.ped)
     SetEntityInvincible(cache.ped, false)
 
@@ -600,6 +655,7 @@ function client.exitPlayerCustomization(appearance)
     currentCamera = nil
     reverseCamera = nil
     isCameraInterpolating = nil
+    isCustomizationActive = false
 
 end
 

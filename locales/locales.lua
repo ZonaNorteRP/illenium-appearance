@@ -1,9 +1,9 @@
 Locales = {}
 
 function _L(key)
-    local lang = GetConvar("illenium-appearance:locale", "en")
+    local lang = GetConvar("illenium-appearance:locale", "pt-BR")
     if not Locales[lang] then
-        lang = "en"
+        lang = "pt-BR"
     end
     local value = Locales[lang]
     for k in key:gmatch("[^.]+") do

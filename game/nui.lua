@@ -1,7 +1,11 @@
 local client = client
 
 RegisterNUICallback("appearance_get_locales", function(_, cb)
-    cb(Locales[GetConvar("illenium-appearance:locale", "en")].UI)
+    local lang = GetConvar("illenium-appearance:locale", "pt-BR")
+    if not Locales[lang] then
+        lang = "pt-BR"
+    end
+    cb(Locales[lang].UI)
 end)
 
 RegisterNUICallback("appearance_get_settings", function(_, cb)
@@ -37,7 +41,20 @@ RegisterNUICallback("appearance_change_model", function(model, cb)
 
     SetEntityHeading(cache.ped, client.getHeading())
     SetEntityInvincible(playerPed, true)
-    TaskStandStill(playerPed, -1)
+
+    -- Re-aplica congelamento e pose após troca de modelo
+    FreezeEntityPosition(cache.ped, true)
+    local gender = client.getPedDecorationType()
+    local animDict = (gender == "Female") and "mp_character_creation@customise@female_a" or "mp_character_creation@customise@male_a"
+    RequestAnimDict(animDict)
+    local timeout = 0
+    while not HasAnimDictLoaded(animDict) and timeout < 100 do
+        Wait(50)
+        timeout = timeout + 1
+    end
+    if HasAnimDictLoaded(animDict) then
+        TaskPlayAnim(cache.ped, animDict, "loop", 8.0, -8.0, -1, 49, 0, false, false, false)
+    end
 
     cb({
         appearanceSettings = client.getAppearanceSettings(),
@@ -133,4 +150,9 @@ end)
 
 RegisterNUICallback("get_theme_configuration", function(_, cb)
     cb(Config.Theme)
+end)
+
+RegisterNUICallback("appearance_change_tattoos", function(tattoos, cb)
+    cb(1)
+    client.setPedTattoos(cache.ped, tattoos)
 end)

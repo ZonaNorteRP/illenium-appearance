@@ -17,11 +17,11 @@ Config.AsynchronousLoading = false -- Change this to false if you want the NUI d
 Config.UseTarget = false
 
 Config.TextUIOptions = {
-    position = "left-center"
+    position = "right-center"
 }
 
 Config.NotifyOptions = {
-    position = "top-right"
+    position = "center-right"
 }
 
 Config.OutfitCodeLength = 10
@@ -36,7 +36,7 @@ Config.EnablePedsForPlayerOutfitRooms = true
 Config.EnablePedMenu = true
 Config.PedMenuGroup = "group.admin"
 
-Config.EnableJobOutfitsCommand = false -- Enables /joboutfits and /gangoutfits commands
+Config.EnableJobOutfitsCommand = true -- Enables /joboutfits and /gangoutfits commands
 
 Config.ShowNearestShopOnly = false
 Config.HideRadar = false -- Hides the minimap while the appearance menu is open
@@ -51,7 +51,7 @@ Config.TrackerClothingOptions = {
 }
 
 Config.NewCharacterSections = {
-    Ped = true,
+    Ped = false, -- mur4i (desativado para servers BR)
     HeadBlend = true,
     FaceFeatures = true,
     HeadOverlays = true,
@@ -64,14 +64,19 @@ Config.GenderBasedOnPed = true
 
 Config.AlwaysKeepProps = false
 
-Config.PersistUniforms = false -- Keeps Job / Gang Outfits on player reconnects / logout
+Config.PersistUniforms = true -- Keeps Job / Gang Outfits on player reconnects / logout
 Config.OnDutyOnlyClothingRooms = false -- Set to `true` to make the clothing rooms accessible only to players who are On Duty
 
-Config.BossManagedOutfits = false -- Allows Job / Gang bosses to manage their own job / gang outfits
+Config.BossManagedOutfits = true -- Allows Job / Gang bosses to manage their own job / gang outfits
 
 Config.ReloadSkinCooldown = 5000
 
-Config.AutomaticFade = false -- Enables automatic fading and hides the Fade section from Hair
+Config.AutomaticFade = true -- Enables automatic fading and hides the Fade section from Hair
+
+-- ACE Permissions Config
+Config.EnableACEPermissions = false
+Config.ACEResetCooldown = 5000
+Config.ACEListCooldown = 60 * 60 * 1000 -- 1 Hour
 
 Config.DisableComponents = {
     Masks = false,
@@ -94,37 +99,34 @@ Config.DisableProps = {
     Bracelets = false
 }
 
----@type string[]
-Config.Aces = {} -- list of ace permissions used for blacklisting
-
 Config.Blips = {
     ["clothing"] = {
         Show = true,
-        Sprite = 366,
-        Color = 47,
-        Scale = 0.7,
-        Name = "Clothing Store",
+        Sprite = 73,
+        Color = 0,
+        Scale = 0.6,
+        Name = "Loja de Roupas",
     },
     ["barber"] = {
         Show = true,
         Sprite = 71,
         Color = 0,
-        Scale = 0.7,
-        Name = "Barber",
+        Scale = 0.6,
+        Name = "Barbearia",
     },
     ["tattoo"] = {
         Show = true,
         Sprite = 75,
         Color = 4,
-        Scale = 0.7,
-        Name = "Tattoo Shop",
+        Scale = 0.6,
+        Name = "Tatuagens",
     },
     ["surgeon"] = {
         Show = true,
         Sprite = 102,
         Color = 4,
-        Scale = 0.7,
-        Name = "Plastic Surgeon",
+        Scale = 0.6,
+        Name = "Cirurgia Plástica",
     }
 }
 
@@ -133,42 +135,42 @@ Config.TargetConfig = {
         model = "s_f_m_shop_high",
         scenario = "WORLD_HUMAN_STAND_MOBILE",
         icon = "fas fa-tshirt",
-        label = "Open Clothing Store",
+        label = "Abrir Loja de Roupas",
         distance = 3
     },
     ["barber"] = {
         model = "s_m_m_hairdress_01",
         scenario = "WORLD_HUMAN_STAND_MOBILE",
         icon = "fas fa-scissors",
-        label = "Open Barber Shop",
+        label = "Abrir Barbearia",
         distance = 3
     },
     ["tattoo"] = {
         model = "u_m_y_tattoo_01",
         scenario = "WORLD_HUMAN_STAND_MOBILE",
         icon = "fas fa-pen",
-        label = "Open Tattoo Shop",
+        label = "Abrir Estúdio de Tatuagem",
         distance = 3
     },
     ["surgeon"] = {
         model = "s_m_m_doctor_01",
         scenario = "WORLD_HUMAN_STAND_MOBILE",
         icon = "fas fa-scalpel",
-        label = "Open Surgeon",
+        label = "Abrir Cirurgião Plástico",
         distance = 3
     },
     ["clothingroom"] = {
         model = "mp_g_m_pros_01",
         scenario = "WORLD_HUMAN_STAND_MOBILE",
         icon = "fas fa-sign-in-alt",
-        label = "Open Job / Gang Clothes Menu",
+        label = "Abrir Guarda-Roupa de Serviço / Gangue",
         distance = 3
     },
     ["playeroutfitroom"] = {
         model = "mp_g_m_pros_01",
         scenario = "WORLD_HUMAN_STAND_MOBILE",
         icon = "fas fa-sign-in-alt",
-        label = "Open Outfits Menu",
+        label = "Abrir Guarda-Roupa Pessoal",
         distance = 3
     },
 }
@@ -565,16 +567,53 @@ Config.ClothingRooms = {
         rotation = 45,
         usePoly = false,
         points = {
-            vector3(460.41918945312, -993.11444091797, 30.69),
-            vector3(449.39508056641, -993.60614013672, 30.69),
-            vector3(449.88696289062, -990.23779296875, 30.69),
-            vector3(450.97882080078, -989.71411132812, 30.69),
-            vector3(451.0325012207, -987.89904785156, 30.69),
-            vector3(453.47863769531, -987.76928710938, 30.69),
-            vector3(454.35513305664, -988.46459960938, 30.69),
-            vector3(460.4231262207, -987.94573974609, 30.69)
         }
-    }
+    },
+    {
+        job = "mechanic",
+        coords = vector4(760.28, -1293.65, 26.28, 0.0),
+        size = vector3(4, 4, 4),
+        rotation = 45,
+        usePoly = false,
+        points = {
+        }
+    },
+    {
+        job = "mechanic2",
+        coords = vector4(144.54, -1106.65, 29.15, 0.0),
+        size = vector3(4, 4, 4),
+        rotation = 45,
+        usePoly = false,
+        points = {
+        }
+    },
+    {
+        job = "hospital",
+        coords = vector4(-804.53, -1176.10, 6.93, 0.0),
+        size = vector3(4, 4, 4),
+        rotation = 45,
+        usePoly = false,
+        points = {
+        }
+    },
+    {
+        job = "police",
+        coords = vector4(-1652.37, 170.39, 61.81, 0.0),
+        size = vector3(4, 4, 4),
+        rotation = 45,
+        usePoly = false,
+        points = {
+        }
+    },
+    {
+        job = "pcen",
+        coords = vector4(-341.19, -252.85, 32.71, 0.0),
+        size = vector3(4, 4, 4),
+        rotation = 45,
+        usePoly = false,
+        points = {
+        }
+    },
 }
 
 

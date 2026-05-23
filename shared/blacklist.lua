@@ -4,14 +4,14 @@ Config.Blacklist = {
         components = {
             masks = {},
             upperBody = {},
-            lowerBody = {},
+            lowerBody = {34, 53, 96, 205, 246},
             bags = {},
             shoes = {},
             scarfAndChains = {},
-            shirts = {},
-            bodyArmor = {},
+            shirts = {55, 57},
+            bodyArmor = {1, 2, 3, 4, 5, 6, 95},
             decals = {},
-            jackets = {}
+            jackets = {3, 13, 22, 36, 39, 59, 60, 73, 95, 101, 142, 151, 208, 210, 212, 213, 216, 264, 265, 266, 300, 308, 397, 547, 548, 578, 651, 661, 665, 666, 667, 668, 669, 673, 674, 676, 677, 678}
         },
         props = {
             hats = {},
@@ -31,7 +31,7 @@ Config.Blacklist = {
             shoes = {},
             scarfAndChains = {},
             shirts = {},
-            bodyArmor = {},
+            bodyArmor = {1},
             decals = {},
             jackets = {}
         },

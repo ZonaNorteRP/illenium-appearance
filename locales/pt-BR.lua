@@ -3,7 +3,7 @@ Locales["pt-BR"] = {
         modal = {
             save = {
                 title = "Salvar customização",
-                description = "Você continuará feio."
+                description = "Você continuará assim!"
             },
             exit = {
                 title = "Sair da customização",
@@ -13,11 +13,11 @@ Locales["pt-BR"] = {
             decline = "Não"
         },
         ped = {
-            title = "Ped",
+            title = "🚶‍♂️ Ped",
             model = "Modelo"
         },
         headBlend = {
-            title = "Herança",
+            title = "🧬 Herança",
             shape = {
                 title = "Face",
                 firstOption = "Pai",
@@ -31,14 +31,14 @@ Locales["pt-BR"] = {
                 mix = "Mistura"
             },
             race = {
-                title = "Raça",
+                title = "Etnia",
                 shape = "Face",
                 skin = "Pele",
                 mix = "Mistura"
             }
         },
         faceFeatures = {
-            title = "Características faciais",
+            title = "😶 Características faciais",
             nose = {
                 title = "Nariz",
                 width = "Largura",
@@ -82,7 +82,7 @@ Locales["pt-BR"] = {
             }
         },
         headOverlays = {
-            title = "Aparência",
+            title = "💈 Aparência",
             hair = {
                 title = "Cabelo",
                 style = "Estilo",
@@ -110,7 +110,7 @@ Locales["pt-BR"] = {
             eyeColor = "Cor dos olhos"
         },
         components = {
-            title = "Roupas",
+            title = "👚 Roupas",
             drawable = "Modelo",
             texture = "Textura",
             mask = "Máscaras",
@@ -126,7 +126,7 @@ Locales["pt-BR"] = {
             head = "Cabeça"
         },
         props = {
-            title = "Acessórios",
+            title = "👒 Acessórios",
             drawable = "Modelo",
             texture = "Textura",
             hats = "Chapéus e capacetes",
@@ -136,14 +136,15 @@ Locales["pt-BR"] = {
             bracelets = "Braceletes"
         },
         tattoos = {
-            title = "Tatuagens",
+            title = "🦋 Tatuagens",
             items = {
                 ZONE_TORSO = "Tronco",
                 ZONE_HEAD = "Cabeça",
                 ZONE_LEFT_ARM = "Braço esquerdo",
                 ZONE_RIGHT_ARM = "Braço direito",
                 ZONE_LEFT_LEG = "Perna esquerda",
-                ZONE_RIGHT_LEG = "Perna direita"
+                ZONE_RIGHT_LEG = "Perna direita",
+                ZONE_HAIR = "Cabelo"
             },
             apply = "Aplicar",
             delete = "Apagar",

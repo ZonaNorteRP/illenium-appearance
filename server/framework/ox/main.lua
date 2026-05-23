@@ -1,6 +1,8 @@
-if not Framework.Ox() then return end
+if not Framework.Ox() then
+    return
+end
 
-local Ox = require '@ox_core.lib.init'
+local Ox = require("@ox_core.lib.init")
 
 function Framework.GetPlayerID(playerId)
     return Ox.GetPlayer(playerId).charId

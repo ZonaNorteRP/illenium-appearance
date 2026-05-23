@@ -69,8 +69,13 @@ end
 
 function OpenSurgeonShop()
     local config = GetDefaultConfig()
+    config.ped = true
     config.headBlend = true
     config.faceFeatures = true
+    config.headOverlays = true
+    config.components = true
+    config.props = true
+    config.tattoos = true
     OpenShop(config, false, "surgeon")
 end
 

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZN Appearance</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app" style="display: none;">
+        <div class="sidebar">
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <span>ZN ROUPAS</span>
+                </div>
+                <div class="afk-warning">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <span>5 minutos inativo resultará em kick por AFK.</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section-label">CATEGORIAS</div>
+            <nav class="categories">
+                <button class="category-btn active" data-category="ped">
+                    <i class="fas fa-person"></i>
+                    <span>PED</span>
+                </button>
+                <button class="category-btn" data-category="headBlend">
+                    <i class="fas fa-dna"></i>
+                    <span>HERANÇA</span>
+                </button>
+                <button class="category-btn" data-category="faceFeatures">
+                    <i class="fas fa-face-smile"></i>
+                    <span>ROSTO</span>
+                </button>
+                <button class="category-btn" data-category="headOverlays">
+                    <i class="fas fa-cut"></i>
+                    <span>APARÊNCIA</span>
+                </button>
+                <button class="category-btn" data-category="components">
+                    <i class="fas fa-shirt"></i>
+                    <span>ROUPAS</span>
+                </button>
+                <button class="category-btn" data-category="props">
+                    <i class="fas fa-hat-cowboy"></i>
+                    <span>ACESSÓRIOS</span>
+                </button>
+                <button class="category-btn" data-category="tattoos">
+                    <i class="fas fa-palette"></i>
+                    <span>TATUAGENS</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-section-label">CÂMERA</div>
+            <div class="camera-controls">
+                <button class="camera-btn" onclick="setCamera('head')" title="Rosto">
+                    <i class="fas fa-user"></i>
+                </button>
+                <button class="camera-btn" onclick="setCamera('body')" title="Corpo">
+                    <i class="fas fa-child"></i>
+                </button>
+                <button class="camera-btn" onclick="setCamera('bottom')" title="Pernas">
+                    <i class="fas fa-shoe-prints"></i>
+                </button>
+                <button class="camera-btn" onclick="setCamera('default')" title="Reset">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+            </div>
+            <div class="camera-controls">
+                <button class="camera-btn" onclick="rotate(-10)" title="Girar Esquerda">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="camera-btn" onclick="turnAround()" title="Girar 180°">
+                    <i class="fas fa-sync"></i>
+                </button>
+                <button class="camera-btn" onclick="rotate(10)" title="Girar Direita">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+
+            <div class="footer">
+                <!-- Scale Widget (inline, above cancel) -->
+                <div class="scale-widget-inline" id="scale-widget">
+                    <div class="scale-popover" id="scale-popover">
+                        <div class="scale-popover-header">
+                            <i class="fas fa-expand-alt"></i>
+                            <span>ESCALA DA INTERFACE</span>
+                        </div>
+                        <div class="scale-popover-body">
+                            <button class="scale-step-btn" onclick="adjustScale(-5)"><i class="fas fa-minus"></i></button>
+                            <input type="range" id="scale-slider" min="60" max="100" step="5" value="100" oninput="applyScale(this.value)">
+                            <button class="scale-step-btn" onclick="adjustScale(5)"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="scale-footer-row">
+                            <div class="scale-value-display" id="scale-value-display">100%</div>
+                            <button class="scale-reset-btn" onclick="resetScale()">
+                                <i class="fas fa-rotate-left"></i> RESETAR
+                            </button>
+                        </div>
+                    </div>
+                    <button class="scale-toggle-btn" id="scale-toggle-btn" onclick="toggleScalePopover()" title="Escala da Interface">
+                        <i class="fas fa-expand-alt"></i>
+                        <span>ESCALA</span>
+                    </button>
+                </div>
+
+                <button id="exit-btn" class="secondary-btn">
+                    <i class="fas fa-times"></i>
+                    <span>CANCELAR</span>
+                </button>
+                <button id="submit-btn" class="primary-btn">
+                    <i class="fas fa-check"></i>
+                    <span>CONFIRMAR</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="items-container">
+                <div class="section-title">
+                    <span class="label">CATEGORIA</span>
+                    <h1 id="category-title" class="value">CARREGANDO...</h1>
+                </div>
+                <div id="items-grid" class="items-grid">
+                    <!-- Items will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="branding-container">
+            <div class="branding-logo">ZN</div>
+            <div class="branding-text">SISTEMA DE IDENTIDADE</div>
+            <div class="branding-version">VER 2.0.4</div>
+        </div>
+
+        <div class="controls-hint">
+            <div class="hint">
+                <span class="key">A / D</span>
+                <span class="label">GIRAR CÂMERA</span>
+            </div>
+            <div class="hint">
+                <span class="key"><i class="fas fa-arrow-left"></i> <i class="fas fa-arrow-right"></i></span>
+                <span class="label">TROCAR ITEM</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

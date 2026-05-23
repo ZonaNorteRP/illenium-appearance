@@ -3,7 +3,10 @@ local PED_TATTOOS = {}
 local pedModelsByHash = {}
 
 local function tofloat(num)
-    return num + 0.0
+    if not num then return 0.0 end
+    local parsed = tonumber(num)
+    if not parsed then return 0.0 end
+    return parsed + 0.0
 end
 
 local function isPedFreemodeModel(ped)
@@ -228,17 +231,22 @@ end
 
 local function setPedHeadOverlays(ped, headOverlays)
     if headOverlays then
-        for k, v in pairs(constants.HEAD_OVERLAYS) do
+        for k, v in ipairs(constants.HEAD_OVERLAYS) do
             local headOverlay = headOverlays[v]
-            SetPedHeadOverlay(ped, k-1, headOverlay.style, tofloat(headOverlay.opacity))
+            if headOverlay then
+                local style = headOverlay.style and tonumber(headOverlay.style) and math.floor(tonumber(headOverlay.style)) or 255
+                local opacity = tofloat(headOverlay.opacity or 0.0)
+                SetPedHeadOverlay(ped, k-1, style, opacity)
 
-            if headOverlay.color then
-                local colorType = 1
-                if v == "blush" or v == "lipstick" or v == "makeUp" then
-                    colorType = 2
+                if headOverlay.color then
+                    local colorType = 1
+                    if v == "blush" or v == "lipstick" or v == "makeUp" then
+                        colorType = 2
+                    end
+                    local primaryColor = headOverlay.color and tonumber(headOverlay.color) and math.floor(tonumber(headOverlay.color)) or 0
+                    local secondaryColor = headOverlay.secondColor and tonumber(headOverlay.secondColor) and math.floor(tonumber(headOverlay.secondColor)) or 0
+                    SetPedHeadOverlayColor(ped, k-1, colorType, primaryColor, secondaryColor)
                 end
-
-                SetPedHeadOverlayColor(ped, k-1, colorType, headOverlay.color, headOverlay.secondColor)
             end
         end
     end
@@ -256,16 +264,14 @@ end
 local function setTattoos(ped, tattoos, style)
     local isMale = client.getPedDecorationType() == "male"
     ClearPedDecorations(ped)
-    if Config.AutomaticFade then
-        tattoos["ZONE_HAIR"] = {}
-        PED_TATTOOS["ZONE_HAIR"] = {}
+    if Config.AutomaticFade and (not tattoos["ZONE_HAIR"] or #tattoos["ZONE_HAIR"] == 0) then
         applyAutomaticFade(ped, style or GetPedDrawableVariation(ped, 2))
     end
     for k in pairs(tattoos) do
-        for i = 1, #tattoos[k] do
-            local tattoo = tattoos[k][i]
-            local tattooGender = isMale and tattoo.hashMale or tattoo.hashFemale
-            for _ = 1, (tattoo.opacity or 0.1) * 10 do
+        if type(tattoos[k]) == "table" then
+            for i = 1, #tattoos[k] do
+                local tattoo = tattoos[k][i]
+                local tattooGender = isMale and tattoo.hashMale or tattoo.hashFemale
                 AddPedDecorationFromHashes(ped, joaat(tattoo.collection), joaat(tattooGender))
             end
         end
@@ -277,8 +283,8 @@ end
 
 local function setPedHair(ped, hair, tattoos)
     if hair then
-        SetPedComponentVariation(ped, 2, hair.style, hair.texture, 0)
-        SetPedHairColor(ped, hair.color, hair.highlight)
+        SetPedComponentVariation(ped, 2, hair.style, hair.texture or 0, 0)
+        SetPedHairColor(ped, hair.color, hair.highlight or 0)
         if isPedFreemodeModel(ped) then
             setTattoos(ped, tattoos or PED_TATTOOS, hair.style)
         end
@@ -297,7 +303,7 @@ local function setPedComponent(ped, component)
             return
         end
 
-        SetPedComponentVariation(ped, component.component_id, component.drawable, component.texture, 0)
+        SetPedComponentVariation(ped, component.component_id, component.drawable, component.texture or 0, 0)
     end
 end
 
@@ -314,7 +320,7 @@ local function setPedProp(ped, prop)
         if prop.drawable == -1 then
             ClearPedProp(ped, prop.prop_id)
         else
-            SetPedPropIndex(ped, prop.prop_id, prop.drawable, prop.texture, false)
+            SetPedPropIndex(ped, prop.prop_id, prop.drawable, prop.texture or 0, false)
         end
     end
 end
@@ -349,9 +355,7 @@ local function setPreviewTattoo(ped, tattoos, tattoo)
     local tattooGender = isMale and tattoo.hashMale or tattoo.hashFemale
 
     ClearPedDecorations(ped)
-    for _ = 1, (tattoo.opacity or 0.1) * 10 do
-        AddPedDecorationFromHashes(ped, joaat(tattoo.collection), tattooGender)
-    end
+    AddPedDecorationFromHashes(ped, joaat(tattoo.collection), joaat(tattooGender))
     for k in pairs(tattoos) do
         for i = 1, #tattoos[k] do
             local aTattoo = tattoos[k][i]
